@@ -1,2 +1,2 @@
 # Julia_tips
-Sharing pieces of scripts in Julia. 
+Sharing pieces of script in Julia. 
