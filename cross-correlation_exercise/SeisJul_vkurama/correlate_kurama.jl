@@ -154,4 +154,34 @@ function correlate(fft1::AbstractArray, fft2::AbstractArray, maxlag::Int;
     return corrT, t
 end
 
+
+"""
+    xcorrwithDFT(fft1, fft2, maxlag, method='cross-correlate')
+
+Cross-correlation of two ffts.
+
+
+"""
+function xcorrwithDFT(fft1::AbstractArray, fft2::AbstractArray; method::String="cross-correlation")
+
+    corrF_positive = conj.(fft1) .* fft2
+    corrF_negative = fft1 .* conj.(fft2)
+
+    if method == "deconv"
+        corrF ./= abs.(fft1).^2
+    elseif method == "coherence"
+        corrF ./= abs.(fft1)
+        corrF ./= abs.(fft2)
+    end
+
+    # take inverse fft
+    corrT = vcat(ifft(corrF_negative)[end:-1:2], ifft(corrF_positive))
+
+    L = length(corrT) # should be 2N-1
+    t = range(-Int((L-1)/2), Int((L-1)/2))
+    return corrT, t
+    
+end
+
+
 end

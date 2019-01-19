@@ -9,7 +9,7 @@ distance: d [m]
 """
 
 include("./SeisJul_vkurama/SeisJul.jl")
-include("./SeisJul_vkurama/correlate.jl")
+include("./SeisJul_vkurama/correlate_kurama.jl")
 using Plots, .Correlate, FFTW
 
 #------------------------------------------------#
@@ -25,6 +25,7 @@ t_init = 20	# initial time of signal at sensor 1
 #------------------------------------------------#
 
 # Making time series (pseudo inputs)
+
 N = round(Int, T/dt + 1) # number of data point 
 
 t = dt .* collect(0:N-1) # Time [s]
@@ -65,10 +66,6 @@ p2 = plot(t, u2, line=(:blue, 1, :solid),
     ylim = (-1.5, 1.5)
     )
 
-#plot(p1, p2, layout = (2,1), legend=false)
-
-#savefig("test.png")
-
 #Do cross-correlation in time domain
 #add zero for the length of N-1 to both sides of u2
 #normalized by the number of data points N-k (k is the data number in zero padding)
@@ -101,17 +98,17 @@ p3 = plot(tcorr, Rcorr, line=(:red, 1, :solid),
     ylim = (-1.2*maximum(abs.(Rcorr)), 1.2*maximum(abs.(Rcorr)))
     )
 
-#plot(p1, p2, p3, layout = (3,1), size = (800, 1200), legend=false)
-
 #Do cross-correlation in frequency domain
 
 Fs = 1/dt
-#padding next2pow
-u1pad = vcat(u1, zeros(nextpow(2,N)-N))
-u2pad = vcat(u2, zeros(nextpow(2,N)-N))
+
+#padding zero with next2pow
+u1pad = vcat(u1, zeros(nextpow(2,2*N)-N))
+u2pad = vcat(u2, zeros(nextpow(2,2*N)-N))
 
 L = length(u1pad)
 
+#Plot single side spectrum
 Fu1 = fft(u1pad)
 Pu1_temp =  abs.(Fu1/L)
 Pu1 = Pu1_temp[1:Int(L/2 + 1)]
@@ -143,24 +140,56 @@ p5 = plot(freq_Fu2, Pu2, line=(:red, 1, :solid),
     xticks = 0:0.1:Fs/2,
     ylim = (0, 1.2*maximum(abs.(Pu2)))
     )
-#plot(p1, p2, p3, p4, layout = (4,1), size = (1200, 1200), legend=false)
 
+# Calculate cross-correlation function
+# without and with zeropad
 
-Rcorr_byfft, tn = Correlate.correlate(Fu1, Fu2, Int(L-1), method="ddeconv")
-tcorr = dt .* collect(tn)
+Fu1xcorr_nopad = fft(u1)
+Fu2xcorr_nopad = fft(u2)
 
-length(Rcorr_byfft)
+Fu1xcorr_zeropad = fft(u1pad)
+Fu2xcorr_zeropad = fft(u2pad)
 
-p6 = plot(tcorr, real.(Rcorr_byfft), line=(:brue, 1, :solid),
+Rcorr_byfft_nopad, tn_nopad = Correlate.xcorrwithDFT(Fu1xcorr_nopad, Fu2xcorr_nopad, method="ddeconv")
+Rcorr_byfft_zeropad, tn_zeropad = Correlate.xcorrwithDFT(Fu1xcorr_zeropad, Fu2xcorr_zeropad, method="ddeconv")
+
+tcorr_nopad = dt .* collect(tn_nopad)
+tcorr_zeropad = dt .* collect(tn_zeropad)
+
+p6 = plot(tcorr_nopad, real.(Rcorr_byfft_nopad), line=(:brue, 1, :solid),
 	marker = (:cross, 2, :green),
     ylabel = "Correlation", 
     xlabel = "Time [s]",
-    title = "Cross-correlation between u1 and u2 by FFT",
+    title = "Cross-correlation by FFT without zero pad",
     xlim = (-T, T),
     ylim = (-1.2*maximum(abs.(Rcorr_byfft)), 1.2*maximum(abs.(Rcorr_byfft)))
     )
 
-plot(p1, p2, p4, p5, p3, p6, layout = (3,2), size = (1200, 1200), legend=false)
+p7 = plot(tcorr_zeropad, real.(Rcorr_byfft_zeropad), line=(:brue, 1, :solid),
+    marker = (:cross, 2, :green),
+    ylabel = "Correlation", 
+    xlabel = "Time [s]",
+    title = "Cross-correlation by FFT with zero pad",
+    xlim = (-T, T),
+    ylim = (-1.2*maximum(abs.(Rcorr_byfft)), 1.2*maximum(abs.(Rcorr_byfft)))
+    )
+
+p8 = plot(tcorr, Rcorr./(maximum(Rcorr)), line=(:black, 2, :solid),
+    ylabel = "Correlation", 
+    xlabel = "Time [s]",
+    )
+
+p8 = plot!(tcorr_zeropad, real.(Rcorr_byfft_zeropad)./ maximum(real.(Rcorr_byfft_zeropad)), line=false,
+    marker = (:xcross, 2, :red),
+    ylabel = "Correlation", 
+    xlabel = "Time [s]",
+    title = "Comparison between direct and using FFT",
+    xlim = (-T, T),
+    ylim = (-1.2,1.2)
+    )
+
+
+plot(p1, p2, p4, p5, p3, p6, p7, p8, layout = (4,2), size = (1200, 1200), legend=false)
 
 savefig("./summary.png")
 
