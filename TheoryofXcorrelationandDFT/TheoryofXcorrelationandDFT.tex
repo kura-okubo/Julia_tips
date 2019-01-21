@@ -187,9 +187,9 @@ Thus equation (\ref{eq:ft1}) is rewritten as following
 \begin{eqnarray}
 \Psi_{12}[k] &=& \sum_{m=0}^{N-1}\psi[m]e^{-\dfrac{i2\pi km}{N}}   \\
 &=& \sum_{m=0}^{N-1} \sum_{l=0}^{N-1}u_1[l]u_2[l+m] e^{-\dfrac{i2\pi km}{N}}\\
-&=& \sum_{m=0}^{N-1} u_1[l] e^{\dfrac{i2\pi km}{N}} \sum_{l=0}^{N-1}u_2[l+m] e^{-\dfrac{i2\pi k(l+m)}{N}}\\
+&=& \sum_{l=0}^{N-1} u_1[l] e^{\dfrac{i2\pi kl}{N}} \sum_{m=0}^{N-1}u_2[l+m] e^{-\dfrac{i2\pi k(l+m)}{N}}\\
 \label{eq:cs1}
-&=& \sum_{m=0}^{N-1} u_1[l] e^{\dfrac{i2\pi km}{N}} \sum_{\nu=m}^{N+m-1}u_2[\nu] e^{-\dfrac{i2\pi k\nu}{N}}.
+&=& \sum_{l=0}^{N-1} u_1[l] e^{\dfrac{i2\pi kl}{N}} \sum_{\nu=l}^{N+l-1}u_2[\nu] e^{-\dfrac{i2\pi k\nu}{N}}.
 \end{eqnarray}
 Considering periodicity of $e^{-\dfrac{i2\pi k\nu}{N}}$ and time series,
 \begin{eqnarray}
@@ -207,13 +207,13 @@ Equation (\ref{eq:assm1}) infers the assumption that the time series is periodic
 
 Thus
 \begin{equation}
-\sum_{\nu=m}^{N+m-1}u_2[\nu] e^{-\dfrac{i2\pi k\nu}{N}} = \sum_{\nu=0}^{N-1}u_2[\nu] e^{-\dfrac{i2\pi k\nu}{N}}.
+\sum_{\nu=l}^{N+l-1}u_2[\nu] e^{-\dfrac{i2\pi k\nu}{N}} = \sum_{\nu=0}^{N-1}u_2[\nu] e^{-\dfrac{i2\pi k\nu}{N}}.
 \end{equation}
 
 
 Then the equation (\ref{eq:cs1}) is written as
 \begin{eqnarray}
-\Psi_{12}[k] &=& \sum_{m=0}^{N-1} u_1[l] e^{\dfrac{i2\pi km}{N}} \sum_{\nu=0}^{N-1}u_2[\nu] e^{-\dfrac{i2\pi k\nu}{N}}\\
+\Psi_{12}[k] &=& \sum_{l=0}^{N-1} u_1[l] e^{\dfrac{i2\pi kl}{N}} \sum_{\nu=0}^{N-1}u_2[\nu] e^{-\dfrac{i2\pi k\nu}{N}}\\
 &=&  U_1^*[k]U_2[k].
 \end{eqnarray}
 
