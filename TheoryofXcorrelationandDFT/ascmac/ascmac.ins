@@ -1,0 +1,23 @@
+\input docstrip
+\keepsilent
+\usedir{tex/latex/ascmac}
+\ifToplevel{\askonceonly}
+
+\Msg{*** Generating ascmac package ***}
+
+\preamble
+
+Copyright (c) 2010 ASCII MEDIA WORKS
+Copyright (c) 2016-2018 Japanese TeX Development Community
+
+This file is part of ascmac community edition.
+-------------------------------------------------------------
+
+\endpreamble
+
+\generate{
+  \file{ascmac.sty}{\from{ascmac.dtx}{ascmac}}
+  \file{tascmac.sty}{\from{ascmac.dtx}{tascmac}}
+}
+
+\endbatchfile
